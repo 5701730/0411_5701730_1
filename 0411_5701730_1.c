@@ -14,7 +14,16 @@ typedef struct {
 
 Stack* createStack() {
     Stack* stack = (Stack*)malloc(sizeof(Stack));
+    if (stack == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
     stack->data = (element*)malloc(sizeof(element) * INITIAL_STACK_SIZE);
+    if (stack->data == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        free(stack);
+        exit(EXIT_FAILURE);
+    }
     stack->top = -1;
     stack->capacity = INITIAL_STACK_SIZE;
     return stack;
@@ -26,14 +35,23 @@ void freeStack(Stack* stack) {
 }
 
 int isEmpty(Stack* stack) {
-    return (stack->top == -1);
+    return (stack == NULL || stack->top == -1);
 }
 
 void push(Stack* stack, element item) {
+    if (stack == NULL) {
+        fprintf(stderr, "Stack is not initialized\n");
+        exit(EXIT_FAILURE);
+    }
     if (stack->top == stack->capacity - 1) {
         // Stack is full, need to resize
         stack->capacity *= 2;
-        stack->data = (element*)realloc(stack->data, sizeof(element) * stack->capacity);
+        element* newData = (element*)realloc(stack->data, sizeof(element) * stack->capacity);
+        if (newData == NULL) {
+            fprintf(stderr, "Memory allocation failed\n");
+            exit(EXIT_FAILURE);
+        }
+        stack->data = newData;
     }
     stack->top++;
     stack->data[stack->top] = item;
@@ -52,7 +70,7 @@ int pop(Stack* stack) {
 }
 
 int main(int argc, char* argv[]) {
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
 
     Stack* stack = createStack();
 
